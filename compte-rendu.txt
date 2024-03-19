@@ -1,0 +1,18 @@
+On recherche a etablir des valeurs dans une formule qui permettent de determiner
+quand les supercaps dans la voiture devraient etre actives afin de combler a un manque de puissance
+pour cela il nous faut avoir les entrees et des sorties de puissances et d'usage
+afin de pouvoir construire des contextes d'utilisation
+
+a partir de cela nous pourrons construire des models pour la puissance d'energie
+neccessaire et le temps d'utilisation de cette puissance en fonction de 
+l'emplacement du vehicule actuel, sa vitesse actuelle et le comportement de conduite
+du pilote du vehicule
+
+les supercap sont trop cheres a utiliser de maniere permanente dans un vehicule comme unique source d'energie
+c'est pour cela que l'on va associer des batteries traditionnelles aux supercap
+elles sont plus lentes a recharger 
+
+de plus il faut prendre en compte le temps de mise en route de la super pile
+donc avoir une certaine capacite a anticiper sur la situation actuelle mais aussi
+une situation future possible dans laquelle pourrait etre le vehicule et donc 
+son besoin energetique

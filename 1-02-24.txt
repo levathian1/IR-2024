@@ -1,0 +1,52 @@
+lien entre les 3 fichiers: 
+    - excel pourri - done with phone, problemes dans la recuperation de donnees
+    - pos & csv probably linked together
+
+    - add geolocation to csv (merge csv & pos together)
+
+    - plotting speed to location
+    - variabilite des donnees (donnees en altitude peuvent etre degradees)
+
+    - perform averaging on data
+    - voir correlation entre tension et courant de la batterie
+    - correler braking avec recharge de la batterie
+    - correler avec parcours (where breaking + accel)
+    - documenter fichiers - content to output
+    - variation de l'altitude (consider altitude delta as well) / (par rapport a la vitesse)
+    - que peut faire la voiture 
+        - can accel like a sports car
+    - altitude secondary - on flat - no problems
+
+=> add geolocation to csv (merge csv & pos together) - secondary to one below (not sure on next info recup style)
+=> regarder la variabilite des donnees 
+=> consommation d'energie reliee a la vitesse (variation de vitesse et d'altitude)
+=> etat de charge en fonction de la variation de vitessse (is there a physics formula noticible in the data pulled)
+=> is xlsx data usable
+=> pos - altitude data variation - is it usable (noise existance)
+=> noise reduction (moyenne mobile) - regularisation des donnees
+    - moyenne mobile: avg entre plusieurs variables, moyenne sur une zone z, regroupement ensemble des resultats (smooth out irregularities) - check if python package exists
+                    - field pass 
+                    - convolution du signal
+
+=> might be other data files to look over and give verdict over it
+    - caracterisation
+    - criteres pour dire si elles sont utilisables ou non
+
+=> calcul de taux d'accroissement donc noise removal procedure if possible - ameliorer la suite du calcul
+
+=> documenter: freq d'aquissition etc - for better comparing to other files
+
+=> etat de charge 
+
+=> physics formulas for correlation to tension & amperage
+
+=> puissance en fonction de vitesse etc
+
+=> question listing to post 
+=> brake + throttle: var from 1 to -1
+=> if no accel: car brakes and should recoup energy through braking hybrid magic
+
+compte-rendu: 
+    - context
+    - what it does
+    - what we want it to do

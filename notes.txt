@@ -1,0 +1,156 @@
+18/01/2024
+
+- ask about number of expected hours of work
+- teams to drop files for project
+- points toutes les deux semaines, peut-etre plus frequent: next: 1er feb 13h30 - 14h00
+
+project:
+    - hybrid hydrogen car
+    - supercap: batterie (stock energy but faster than batteries - 1h charge / dischage for batterie - couple of min for supercap)
+            - light, needs few rare metals
+    - hybrid: car only battery - ressource problem to build
+    - pile a combustion: too expensive
+        - a little slow to react
+            - limit amount of power to react
+            - use extra from supercap
+        - excess on both sides managed by supercap
+
+    - how to anticipate amount of extra power for accel, anticipate lack of immediat energy, to precharge supercap to have the extra necessary
+        - provide recommendations on power delivery
+    
+    - data straight from car to get info on power consumption with positionning data
+    
+    - have entry + exit to get correct params
+
+    - basic energy physics
+
+
+    1st:
+        - understand these properly
+            - familiarisation des donnees:
+                - donnees dispo
+                    - what to do with them
+                - manquantes
+                    - ways around those
+                - how to visualise
+                - do they make semaines
+                - basic stats on them
+                - quantity + quality evaluation
+
+
+            - initial files to go over
+
+            - how to use gps data  
+                - calc distance, use long / lat
+
+
+=> Compte-rendu de la comprehension + go over data sent
+
+
+=> go over data sent
+
+pour le donnnees: le courant dans la batterie semble s'intensifier (souvent) sur des periodes d'acceleration (ce qui me parait logique et donc pourrait appuyer la theorie du double batterie [ce qui est en lien avec la presentation qu'il nous a fait si memoire est bonne]), y'a aussi des pics d'intensite plus on est haut (ce qui semble logique)
+pour le .pos: j'ai fais le tour pour comprendre ce que faisait les differentes valeurs (https://community.emlid.com/t/pos-file/33713)
+
+
+01/02/2024
+
+lien entre les 3 fichiers: 
+    - excel pourri - done with phone, problemes dans la recuperation de donnees
+    - pos & csv probably linked together
+
+    - add geolocation to csv (merge csv & pos together)
+
+    - plotting speed to location
+    - variabilite des donnees (donnees en altitude peuvent etre degradees)
+
+    - perform averaging on data
+    - voir correlation entre tension et courant de la batterie
+    - correler braking avec recharge de la batterie
+    - correler avec parcours (where breaking + accel)
+    - documenter fichiers - content to output
+    - variation de l'altitude (consider altitude delta as well) / (par rapport a la vitesse)
+    - que peut faire la voiture 
+        - can accel like a sports car
+    - altitude secondary - on flat - no problems
+
+=> add geolocation to csv (merge csv & pos together) - secondary to one below (not sure on next info recup style)
+=> regarder la variabilite des donnees 
+=> consommation d'energie reliee a la vitesse (variation de vitesse et d'altitude)
+=> etat de charge en fonction de la variation de vitessse (is there a physics formula noticible in the data pulled)
+=> is xlsx data usable
+=> pos - altitude data variation - is it usable (noise existance)
+=> noise reduction (moyenne mobile) - regularisation des donnees
+    - moyenne mobile: avg entre plusieurs variables, moyenne sur une zone z, regroupement ensemble des resultats (smooth out irregularities) - check if python package exists
+                    - field pass 
+                    - convolution du signal
+
+=> might be other data files to look over and give verdict over it
+    - caracterisation
+    - criteres pour dire si elles sont utilisables ou non
+
+=> calcul de taux d'accroissement donc noise removal procedure if possible - ameliorer la suite du calcul
+
+=> documenter: freq d'aquissition etc - for better comparing to other files
+
+=> etat de charge 
+
+=> physics formulas for correlation to tension & amperage
+
+=> puissance en fonction de vitesse etc
+
+=> question listing to post 
+=> brake + throttle: var from 1 to -1
+=> if no accel: car brakes and should recoup energy through braking hybrid magic
+
+compte-rendu: 
+    - context
+    - what it does
+    - what we want it to do
+
+
+14/02/2024:
+    - Amperage negatif = recharge (http://physapp.giraud.free.fr/tgel/courant/cours_courant.htm)
+    - moyenne mobile avec pandas (sur 3 variables): df['colAvg'].rolling(window=3).mean()
+
+15/02/2024:
+    - introduire offset in correspondance (check battery intensity + gps coord change)  
+        - regarder vitesse + vitesse calc by gps => if equal else introduce offset 
+    - interp data to associate sets
+    - confirm intensity theory
+    - if acquit needs to have a regular sample set (or can it be achieved by interpolation)
+
+context:
+    Le but de la réunion était de faire le point sur notre avancée dans notre compréhension des données et leur analyse ainsi que poser des questions qui nous seraient arrivées pendant ce travail.
+Nous avons alors pris un des trois nouveaux lots de données, le premier du 12 février et nous avons commence dans un premier temps par comparer ces données a ceux des fichiers que nous avions eu auparavant, nous avons alors pu constater qu'il y a des différences d'information entre les deux (les anciens jeux de données comportaient des colonnes de données en plus.)
+Ensuite, nous avons écrit et testé un programme qui prend en entrée nos jeux de données et nous renvoi des informations particulières ainsi que des graphes afin de pouvoir voir si nous pouvions en dégager des tendances particulières.
+Par cela, nous avons vu que nous allons potentiellement avoir un problème de concordance pour relier les données GPS et les données brutes de la voiture. Le temps d'enregistrement des données des deux fichiers est différent, et notamment pour celui des données brutes est réalisée à des intervalles irréguliers.
+De cela, il s'en est alors dégage une piste d'exploration afin de pouvoir mieux exploiter ces données: l'interpolation.
+Si nous pouvons interpoler les données, nous pourrons alors plus facilement relier les deux lots de données ensemble, pour une toute petite perte de précision. Il s'en est également dégagé la question de l'intensité du courant dans la batterie du véhicule, qui comporte à des moments une intensité négative et a d'autres une intensité positive et a quoi cela pourrait correspondre.
+
+28/02/2024:
+    local variable, pandas read csv parameters - decimal parameter
+    pandas interpolate base function
+    date time was correlated
+        if not what can be done
+
+    find another way of interpolating - not correct way of doing it
+        - chose another way of interp + options
+        - pick closes by time instead of interping all data as closest approximation
+        - transform date/time into ms to find closest from start - index both from 0 instead of current start time
+        - have comparing with other methods
+        - numeric and date formatting - check on smaller file sizes
+        - ordre de grandeur toutes les 100 km/h
+            - error checking param
+        - intensite negative + positive: gathering + usage
+        - introduire offset in correspondance (check battery intensity + gps coord change)  
+            - regarder vitesse + vitesse calc by gps => if equal else introduce offset 
+            - matchup both speeds from both files
+        - offset on file entry to align both files 
+            - use speed different to check offset
+            - compare offsets to pick best one
+            - vmax can be used - both values from files should be synced up together
+        - flexible code, for files with extra / missing columns - new sensor - will get incline
+        - question si boite de vitesse - handling of the data in that case
+
+    - recap this
