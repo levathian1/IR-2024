@@ -154,6 +154,14 @@ print("Hauteur min et max: ", df_pos["height(m)"].min(), df_pos["height(m)"].max
 #########################################################################
 print(df.Temps)
 
+# Drop all of the average calc added columns to stop spread of nan throughout the table
+df_pos = df_pos.drop('MA_lon', axis=1)
+df_pos = df_pos.drop('MA_lat', axis=1)
+df_pos = df_pos.drop('MA_hau', axis=1)
+
+df = df.drop('MA_amp', axis=1)
+df = df.drop('MA_vit', axis=1)
+
 df['Temps'] = pd.to_datetime(df['Temps'], unit='s')
 df['Temps'] = df['Temps'] + pd.Timedelta(hours = 9, minutes=17, seconds=38)
 new_date = pd.to_datetime('2024/02/12', format='%Y/%m/%d')
@@ -183,7 +191,7 @@ print(merge_df.iloc[9])
 
 merge_df.to_csv("test.csv", sep='\t')
 
-merge_df_no_nan = df[:3].dropna()
+merge_df_no_nan = merge_df.dropna()
 
 print(merge_df_no_nan)
 
