@@ -9,7 +9,7 @@ import math
 def haversine(coord1, coord2):
     if(math.isnan(float(coord2[0]))):
         return -1
-    print(coord1, coord2)
+    # print(coord1, coord2)
     return geodesic(coord1, coord2).kilometers
 
 df = pd.read_csv("Data24_02_1/Fev-12-1er-sans-RTK.txt", sep='\s+')
@@ -28,7 +28,7 @@ gmap.plot(df["latitude(deg)"], df["longitude(deg)"])
 # Draw map into HTML file
 gmap.draw("my_map.html")
 
-print(geodesic((48.672945486, 6.153757156), (48.666823756, 6.145844497)).kilometers)
+# print(geodesic((48.672945486, 6.153757156), (48.666823756, 6.145844497)).kilometers)
 
 # TODO: find stackoverflow where this was found to credit it
 
@@ -47,4 +47,31 @@ df['speed'] = df['distance'] / df['time_diff']
 
 df = df.drop(['distance', 'time_diff'], axis=1)
 
+df = df.dropna()
+
 print(df)
+
+
+#######################################################################################################
+# Ajusting based on speed
+# check first 10 vals
+#       if within given margin of error: keep as is
+#       else get closest line with speed val within margin of error and set that as starting speed
+# get closest timestamp 
+
+val = 43.8
+err_range = 3 # nb of km different between both authorised
+new_timestamp = None
+
+df["speed"] = pd.to_numeric(df['speed'])
+
+df2 = df.iloc[:10]
+
+min_val = abs(df2['speed'] - val).min()
+min_index = abs(df2['speed'] - val).idxmin()
+
+print(min_index)
+print(min_val)
+
+if min_val > err_range:
+    new_timestamp = df2.iloc[min_index]["GPST"] + df2.iloc[min_index]["Time"]
