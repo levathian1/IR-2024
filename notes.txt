@@ -154,3 +154,12 @@ Si nous pouvons interpoler les données, nous pourrons alors plus facilement rel
         - question si boite de vitesse - handling of the data in that case
 
     - recap this
+
+
+    => speed in gps and one provided by car sensor have a large enough gap that linking according to speed could be a problem
+        -> how to pick an offset that would keep a certain certainty without causing too many problem
+
+    => intervalles de decalages pour ajuster par rapport aux temps de demarrage de chaque capteur
+        - adaptable w/ col names
+    => art avec equations 
+        -> pouvoir etablir la qualite potentielle des fichiers
