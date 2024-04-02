@@ -1,0 +1,101 @@
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+
+# Rolling window size
+avg_count = 3
+
+#########################################################################
+# Plot Intensite du courant en fonction de la vitesse (sur les 98 premieres valeurs)
+#########################################################################
+def amp_over_speed(df):
+    plt.figure(figsize=(12, 6))
+    # try resampling data later
+    plt.plot(df['Vitesse du véhicule'][2:100], df["Courant"][2:100])
+    plt.title("Intensite du courant en fonction de la vitesse")
+    plt.ylabel("Intensite courant")
+    plt.xlabel('Vitesse du véhicule')
+
+#########################################################################
+# Demo moyenne mobile sur l'intensite du courant
+#########################################################################
+def rolling_avg(df, df_pos):
+    df['MA_amp'] = df['Courant'].rolling(window=avg_count).mean()
+
+    df['MA_vit'] = df['Vitesse du véhicule'].rolling(window=avg_count).mean()
+    df_pos['MA_lon'] = df_pos['latitude(deg)'].rolling(window=avg_count).mean()
+    df_pos['MA_lat'] = df_pos['longitude(deg)'].rolling(window=avg_count).mean()
+    df_pos['MA_hau'] = df_pos['height(m)'].rolling(window=avg_count).mean()
+
+    plt.figure(figsize=(12, 6))
+    plt.plot(df['Temps'][:100], df['MA_amp'][:100])
+    plt.title("Moyenne mobile intensite du courant en fonction du temps")
+    plt.ylabel("Intensite")
+    plt.xlabel('Temps')
+
+#########################################################################
+# Interpolation des donnees toutes les 200ms
+# https://stackoverflow.com/questions/73210784/how-do-interpolate-values-between-two-date-columns-in-my-pandas-dataframe
+#########################################################################
+def interp_system(df, df_pos):
+    print(df.Temps)
+
+    # Drop all of the average calc added columns to stop spread of nan throughout the table
+    df_pos = df_pos.drop('MA_lon', axis=1)
+    df_pos = df_pos.drop('MA_lat', axis=1)
+    df_pos = df_pos.drop('MA_hau', axis=1)
+
+    df = df.drop('MA_amp', axis=1)
+    df = df.drop('MA_vit', axis=1)
+
+    df['Temps'] = pd.to_datetime(df['Temps'], unit='s')
+    df['Temps'] = df['Temps'] + pd.Timedelta(hours = 9, minutes=17, seconds=38)
+    new_date = pd.to_datetime('2024/02/12', format='%Y/%m/%d')
+    df['Temps'] = df['Temps'] + (new_date - df['Temps'].dt.floor('D'))
+    # new range
+    new_range = pd.date_range(df.Temps.iloc[0], df.Temps.iloc[-1], freq='200L')
+
+    df_pos['time'] = pd.to_datetime(df_pos['GPST'] + ' ' + df_pos['Time'], format='%Y/%m/%d %H:%M:%S.%f')
+
+    print(new_range)
+    df.set_index('Temps', inplace=True)
+    df_pos.set_index("time", inplace=True)
+
+    print(df_pos)
+
+    df = df.reindex(df.index.union(new_range))
+
+    interp_df = df.interpolate('time')
+
+    print(interp_df)
+
+    merge_df = pd.merge(interp_df, df_pos, left_index=True, right_index=True, how='left')
+
+    print(merge_df)
+    print(merge_df.iloc[9])
+
+    merge_df.to_csv("test.csv", sep='\t')
+
+    merge_df_no_nan = merge_df.dropna()
+
+    print(merge_df_no_nan)
+
+def ajust_curve(df, val = 43.8, err_range=3):
+    # val = 43.8
+    # err_range = 3 # nb of km different between both authorised
+    new_timestamp = None
+
+    df["speed"] = pd.to_numeric(df['speed'])
+
+    df2 = df.iloc[:10]
+
+    min_val = abs(df2['speed'] - val).min()
+    min_index = abs(df2['speed'] - val).idxmin()
+
+    print(min_index)
+    print(min_val)
+
+    if min_val > err_range:
+        new_timestamp = df2.iloc[min_index]["GPST"] + df2.iloc[min_index]["Time"]
+
+    return new_timestamp
