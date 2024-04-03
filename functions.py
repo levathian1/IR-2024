@@ -13,6 +13,12 @@ import math
 # Plot Intensite du courant en fonction de la vitesse (sur les 98 premieres valeurs)
 #########################################################################
 def amp_over_speed(df):
+    """
+        Plot Intensite du courant en fonction de la vitesse
+
+        :param df: le dataframe ou extraire les donnees
+        :return: returns nothing
+    """
     plt.figure(figsize=(12, 6))
     # try resampling data later
     plt.plot(df['Vitesse du véhicule'][2:100], df["Courant"][2:100])
@@ -24,6 +30,14 @@ def amp_over_speed(df):
 # Demo moyenne mobile sur l'intensite du courant
 #########################################################################
 def rolling_avg(df, df_pos, avg_count=3):
+    """
+        Demo moyenne mobile sur l'intensite du courant
+
+        :param df: le dataframe ou extraire les donnees
+        :param df_pos: le dataframe avec donnees gps ou extraire les donnees
+        :param avg_count: le nombre d'entrees du df a prendre en compte dans le lissage (default = 3)
+        :return: returns nothing
+    """
     df['MA_amp'] = df['Courant'].rolling(window=avg_count).mean()
 
     df['MA_vit'] = df['Vitesse du véhicule'].rolling(window=avg_count).mean()
@@ -41,7 +55,16 @@ def rolling_avg(df, df_pos, avg_count=3):
 # Interpolation des donnees toutes les 200ms
 # https://stackoverflow.com/questions/73210784/how-do-interpolate-values-between-two-date-columns-in-my-pandas-dataframe
 #########################################################################
-def interp_system(df, df_pos, timestamp):
+def interp_system(df, df_pos, datestamp, timestamp):
+    """
+        Interpolation des donnees toutes les 200ms
+
+        :param df: le dataframe ou extraire les donnees
+        :param df_pos: le dataframe avec donnees gps ou extraire les donnees
+        :param datestamp: la premiere date des donnees gps
+        :param timestamp: premier horaire des donnees gps
+        :return: returns nothing
+    """
     print(df.Temps)
 
     # Drop all of the average calc added columns to stop spread of nan throughout the table
@@ -53,8 +76,8 @@ def interp_system(df, df_pos, timestamp):
     df = df.drop('MA_vit', axis=1)
 
     df['Temps'] = pd.to_datetime(df['Temps'], unit='s')
-    df['Temps'] = df['Temps'] + pd.Timedelta(hours = 9, minutes=17, seconds=38)
-    new_date = pd.to_datetime(timestamp, format='%Y/%m/%d')
+    df['Temps'] = df['Temps'] + pd.Timedelta(hours = timestamp[0], minutes=timestamp[1], seconds=timestamp[2])
+    new_date = pd.to_datetime(datestamp, format='%Y/%m/%d')
     df['Temps'] = df['Temps'] + (new_date - df['Temps'].dt.floor('D'))
     # new range
     new_range = pd.date_range(df.Temps.iloc[0], df.Temps.iloc[-1], freq='200L')
@@ -88,6 +111,13 @@ def interp_system(df, df_pos, timestamp):
 # https://en.wikipedia.org/wiki/Haversine_formula
 #########################################################################
 def haversine(coord1, coord2):
+    """
+        Haversine distance calculation 
+
+        :param coord1: la premiere coordonnee gps
+        :param coord2: la deuxieme coordonnee gps
+        :return: returns distance
+    """
     if(math.isnan(float(coord2[0]))):
         return -1
     # print(coord1, coord2)
@@ -97,6 +127,15 @@ def haversine(coord1, coord2):
 # Calcul d'un timestamp ideal selon les donnees GPS et vitesse capteur voiture si besoin
 #########################################################################
 def ajust_curve(df, val = 43.8, err_range=3):
+    """
+        Calcul d'un timestamp ideal selon les donnees GPS et vitesse capteur voiture si besoin
+
+
+        :param df: le dataframe
+        :param val: la premiere valeur de vitesse de la dataframe contre lequel s'ajsuter
+        :param err_range: tolerance de difference de vitesse (en km/h)
+        :return: returns datetime stamp
+    """
     # val = 43.8
     # err_range = 3 # nb of km different between both authorised
     df['prev_latitude'] = df['latitude(deg)'].shift(-1)
