@@ -1,9 +1,13 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+from geopy.distance import geodesic
+import math
 
-# Rolling window size
-avg_count = 3
+# TODO: linking to functions
+# TODO: Linking to physics 
+# TODO: produce model from this
+# TODO: verify function on other files
 
 #########################################################################
 # Plot Intensite du courant en fonction de la vitesse (sur les 98 premieres valeurs)
@@ -19,7 +23,7 @@ def amp_over_speed(df):
 #########################################################################
 # Demo moyenne mobile sur l'intensite du courant
 #########################################################################
-def rolling_avg(df, df_pos):
+def rolling_avg(df, df_pos, avg_count=3):
     df['MA_amp'] = df['Courant'].rolling(window=avg_count).mean()
 
     df['MA_vit'] = df['Vitesse du véhicule'].rolling(window=avg_count).mean()
@@ -37,7 +41,7 @@ def rolling_avg(df, df_pos):
 # Interpolation des donnees toutes les 200ms
 # https://stackoverflow.com/questions/73210784/how-do-interpolate-values-between-two-date-columns-in-my-pandas-dataframe
 #########################################################################
-def interp_system(df, df_pos):
+def interp_system(df, df_pos, timestamp):
     print(df.Temps)
 
     # Drop all of the average calc added columns to stop spread of nan throughout the table
@@ -50,7 +54,7 @@ def interp_system(df, df_pos):
 
     df['Temps'] = pd.to_datetime(df['Temps'], unit='s')
     df['Temps'] = df['Temps'] + pd.Timedelta(hours = 9, minutes=17, seconds=38)
-    new_date = pd.to_datetime('2024/02/12', format='%Y/%m/%d')
+    new_date = pd.to_datetime(timestamp, format='%Y/%m/%d')
     df['Temps'] = df['Temps'] + (new_date - df['Temps'].dt.floor('D'))
     # new range
     new_range = pd.date_range(df.Temps.iloc[0], df.Temps.iloc[-1], freq='200L')
@@ -80,9 +84,33 @@ def interp_system(df, df_pos):
 
     print(merge_df_no_nan)
 
+#########################################################################
+# https://en.wikipedia.org/wiki/Haversine_formula
+#########################################################################
+def haversine(coord1, coord2):
+    if(math.isnan(float(coord2[0]))):
+        return -1
+    # print(coord1, coord2)
+    return geodesic(coord1, coord2).kilometers
+
+#########################################################################
+# Calcul d'un timestamp ideal selon les donnees GPS et vitesse capteur voiture si besoin
+#########################################################################
 def ajust_curve(df, val = 43.8, err_range=3):
     # val = 43.8
     # err_range = 3 # nb of km different between both authorised
+    df['prev_latitude'] = df['latitude(deg)'].shift(-1)
+    df['prev_longitude'] = df['longitude(deg)'].shift(-1)
+    if(pd.isna(df['prev_latitude'].shift(-1).any()) == False):
+        df['distance'] = df.apply(lambda x: haversine((x['latitude(deg)'], x['longitude(deg)']), (x['prev_latitude'], x['prev_longitude'])), axis=1)
+        df['time_diff'] = (df['Time'] - df['Time'].shift()).dt.total_seconds() / 3600  # Convert seconds to hours
+
+    df['speed'] = df['distance'] / df['time_diff']
+
+    df = df.drop(['distance', 'time_diff'], axis=1)
+
+    df = df.dropna()
+
     new_timestamp = None
 
     df["speed"] = pd.to_numeric(df['speed'])
@@ -98,4 +126,4 @@ def ajust_curve(df, val = 43.8, err_range=3):
     if min_val > err_range:
         new_timestamp = df2.iloc[min_index]["GPST"] + df2.iloc[min_index]["Time"]
 
-    return new_timestamp
+    return new_timestamp or -1
