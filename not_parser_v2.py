@@ -5,6 +5,8 @@ import numpy as np
 import csv
 import sys
 
+import functions
+
 gps_head = "GPST Time latitude(deg) longitude(deg) height(m) Q ns sdn(m) sde(m) sdu(m) sdne(m) sdeu(m) sdun(m) age(s) ratio"
 df1_head = "Temps;Vitesse du véhicule;Courant batterie de traction mesuré par LBC"
 
@@ -36,3 +38,5 @@ else:
 
     df_pos = pd.read_csv(sys.argv[2], sep='\s+')
     df_pos = df_pos.drop(0)
+
+    replace_header(df_pos, df)

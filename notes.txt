@@ -163,3 +163,12 @@ Si nous pouvons interpoler les données, nous pourrons alors plus facilement rel
         - adaptable w/ col names
     => art avec equations 
         -> pouvoir etablir la qualite potentielle des fichiers
+
+
+04/04/2024: 
+    Q:
+        - Extent of possible header variation
+        - Doc:
+            - Formula to account for speed based on current accel & mass depends on loss factors, how to reliably find them, if taken into account at all
+            - passenger mass given in sheet: mass to always be considered or only applicable for specific trip (/trips)
+            
