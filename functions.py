@@ -130,7 +130,6 @@ def ajust_curve(df, val = 43.8, err_range=3):
     """
         Calcul d'un timestamp ideal selon les donnees GPS et vitesse capteur voiture si besoin
 
-
         :param df: le dataframe
         :param val: la premiere valeur de vitesse de la dataframe contre lequel s'ajsuter
         :param err_range: tolerance de difference de vitesse (en km/h)

@@ -164,11 +164,14 @@ Si nous pouvons interpoler les données, nous pourrons alors plus facilement rel
     => art avec equations 
         -> pouvoir etablir la qualite potentielle des fichiers
 
-
 04/04/2024: 
     Q:
         - Extent of possible header variation
         - Doc:
             - Formula to account for speed based on current accel & mass depends on loss factors, how to reliably find them, if taken into account at all
             - passenger mass given in sheet: mass to always be considered or only applicable for specific trip (/trips)
-            
+        - From speed, prediction as to supercap state or recommendation of range of states possible
+            - if former how accurate, and how to go about training the thing
+        - From speed calc formula, automatic generation of datasets or keeps using provided ones to train on
+        - Quality reference point: take into consideration satellite info (nb of satellites, avg deviation in measurements) or only consider
+        number of necessary ajustment steps to get a measure of the quality of the data

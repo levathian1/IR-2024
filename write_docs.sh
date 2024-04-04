@@ -1,3 +1,4 @@
 #!/bin/bash
 
-pydoc functions > readme.md
+pydoc functions > readme.txt
+pydoc not_parser_v2 >> readme.txt
