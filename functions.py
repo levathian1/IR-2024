@@ -125,8 +125,9 @@ def haversine(coord1, coord2):
 
 #########################################################################
 # Calcul d'un timestamp ideal selon les donnees GPS et vitesse capteur voiture si besoin
+# a appeler plusieurs fois pour trouver le meilleur start time
 #########################################################################
-def ajust_curve(df, val = 43.8, err_range=3):
+def ajust_curve(df, val = 43.8, err_range=0.5):
     """
         Calcul d'un timestamp ideal selon les donnees GPS et vitesse capteur voiture si besoin
 
@@ -161,7 +162,13 @@ def ajust_curve(df, val = 43.8, err_range=3):
     print(min_index)
     print(min_val)
 
+# utile si la marge est trop grande sinon on peut l'ignorer
     if min_val > err_range:
         new_timestamp = df2.iloc[min_index]["GPST"] + df2.iloc[min_index]["Time"]
+    
+    # Difference entre la vitesse actuelle de comparaison et la vitesse la plus proche trouvee par calcul
+    # Dans la portion de donnees analysee pour garder une trace de l'erreur potentielle
+    # Idealement cette valeur vaut 0 (correlation parfaite)
+    diff = val - df2['speed'].iloc[min_index]
 
-    return new_timestamp or -1
+    return (new_timestamp or -1), diff
