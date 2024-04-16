@@ -4,6 +4,8 @@ import pandas as pd
 from geopy.distance import geodesic
 import math
 
+max_offtrack = 5 # nombre de valeurs acceptee dans un df dont le pas de difference au precendant est au dessus du maximum autorise
+
 # TODO: linking to functions
 # TODO: Linking to physics 
 # TODO: produce model from this
@@ -123,6 +125,32 @@ def haversine(coord1, coord2):
     # print(coord1, coord2)
     return geodesic(coord1, coord2).kilometers
 
+def quality_measure(df, max_qual_avg, max_gap):
+    # https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.diff.html
+    qual = df.diff()
+    if (df[df < max_gap ].count() > max_offtrack): return -1
+    # https://stackoverflow.com/questions/31037298/pandas-get-column-average-mean
+    if df.loc[: "sdun(m)"].mean() > max_qual_avg:
+        return -1 # return -1 if qual worse than expected
+    return 1
+
+def calc_speed(df):
+    df['prev_latitude'] = df['latitude(deg)'].shift(-1)
+    df['prev_longitude'] = df['longitude(deg)'].shift(-1)
+    if(pd.isna(df['prev_latitude'].shift(-1).any()) == False):
+        df['distance'] = df.apply(lambda x: haversine((x['latitude(deg)'], x['longitude(deg)']), (x['prev_latitude'], x['prev_longitude'])), axis=1)
+        df['time_diff'] = (df['Time'] - df['Time'].shift()).dt.total_seconds() / 3600  # Convert seconds to hours
+
+    df['speed'] = df['distance'] / df['time_diff']
+
+    df = df.drop(['distance', 'time_diff'], axis=1)
+
+    df = df.dropna()
+
+    new_timestamp = None
+
+    df["speed"] = pd.to_numeric(df['speed'])
+    return df
 #########################################################################
 # Calcul d'un timestamp ideal selon les donnees GPS et vitesse capteur voiture si besoin
 # a appeler plusieurs fois pour trouver le meilleur start time
@@ -162,13 +190,11 @@ def ajust_curve(df, val = 43.8, err_range=0.5):
     print(min_index)
     print(min_val)
 
-# utile si la marge est trop grande sinon on peut l'ignorer
-    if min_val > err_range:
-        new_timestamp = df2.iloc[min_index]["GPST"] + df2.iloc[min_index]["Time"]
+    new_timestamp = df2.iloc[min_index]["GPST"] + df2.iloc[min_index]["Time"]
     
     # Difference entre la vitesse actuelle de comparaison et la vitesse la plus proche trouvee par calcul
     # Dans la portion de donnees analysee pour garder une trace de l'erreur potentielle
     # Idealement cette valeur vaut 0 (correlation parfaite)
     diff = val - df2['speed'].iloc[min_index]
 
-    return (new_timestamp or -1), diff
+    return (new_timestamp, diff, df, min_index)
