@@ -69,7 +69,8 @@ else:
         # for j in range (0, len(res) - len(new_df[i:])):
         #     new_df2 = pd.concat([new_df2, pd.DataFrame([[np.nan] * new_df2.shape[1]], columns=new_df2.columns)], ignore_index=True)
         plt.plot(res["speed"][i:i+1000].index, new_df2["Vitesse du véhicule"][i:i+1000], 'b')
-        plt.title(f"Vitesse, index = {i}")
+        speed = res["speed"].iloc[0] - new_df2["Vitesse du véhicule"].iloc[i]
+        plt.title(f"Vitesse, index = {i}, speed diff at first index {speed}")
 
     plt.show()
 
