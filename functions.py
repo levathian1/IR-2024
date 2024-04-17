@@ -79,13 +79,17 @@ def interp_system(df, df_pos):
     
     print(df.head())
 
+    t1 = df_pos['Time'].iloc[0][0]+df_pos['Time'].iloc[0][1]
+    t2 = df_pos['Time'].iloc[0][3]+df_pos['Time'].iloc[0][4]
+    t3 = df_pos['Time'].iloc[0][6]+df_pos['Time'].iloc[0][7]
+
     df['Temps'] = pd.to_datetime(df['Temps'], unit='s')
-    df['Temps'] = df['Temps'] + pd.Timedelta(hours = 9, minutes=17, seconds=38)
+    df['Temps'] = df['Temps'] + pd.Timedelta(hours = int(t1), minutes=int(t2), seconds=int(t3))
     new_date = pd.to_datetime('2024/02/12', format='%Y/%m/%d')
     df['Temps'] = df['Temps'] + (new_date - df['Temps'].dt.floor('D'))
     # new range
-    # print("hrere 2: ", df['Temps'].iloc[0])
-    new_range = pd.date_range(df['Temps'].iloc[0], df['Temps'].iloc[-1], freq='200L')
+    print("hrere 2: ", df_pos['Time'].iloc[0])
+    new_range = pd.date_range(df['Temps'].iloc[0], periods=2151, freq='200L')
 
     print("range: ", new_range)
     df_pos['time'] = pd.to_datetime(df_pos['GPST'] + ' ' + df_pos['Time'], format='%Y/%m/%d %H:%M:%S.%f')
@@ -103,6 +107,9 @@ def interp_system(df, df_pos):
     print("df: ", df)
 
     interp_df = df.interpolate('time')
+    interp_df = interp_df.reindex(new_range)
+
+    print("interp_df:", interp_df)
 
     # interp_df.index.rename('Time', inplace=True)
 
@@ -116,11 +123,11 @@ def interp_system(df, df_pos):
 
     merge_df_no_nan = merge_df.dropna()
 
-    merge_df_no_nan = merge_df_no_nan.iloc[:-1]
+    merge_df = merge_df.iloc[:-1]
 
-    merge_df_no_nan.to_csv("test.csv", sep='\t')
+    merge_df.to_csv("test.csv", sep='\t')
     print(merge_df_no_nan)
-    return merge_df_no_nan
+    return merge_df
 
 #########################################################################
 # https://en.wikipedia.org/wiki/Haversine_formula

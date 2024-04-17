@@ -1,3 +1,4 @@
+from hmac import new
 from re import I
 import pandas as pd 
 import warnings
@@ -49,32 +50,27 @@ else:
     #     plt.plot(df.iloc[min_ind]["Vitesse du véhicule"])
     #     plt.title(f"Vitesse, index premier timestamp = {timestamp}")
     #     plt.show()
-
-# TODO: recheck method (apres premier df rendu sont tres petits)
-# thingy is fine, plotting is not, force plotting by stuffing with other values to compensate
-    res = [0] * 1000
-    for i in range(200, 201):
-        df2 = df.copy()
-        print("pos: ", df_pos.head())
-        res[i] = func.calc_speed(df_pos)
-        new_df = func.interp_system(df2, df_pos2[i:])
-        
-        print("new: ", len(new_df), len(res[i]["speed"]))
-
-        fig, ax1 = plt.subplots()
-        ax1.plot(res[i]["Time"], res[i].iloc[i-1:]["speed"], 'r')
-
-        ax2 = ax1.twinx()
-        ax2.plot(new_df["Vitesse du véhicule"], 'b')
+    res = func.calc_speed(df_pos)
+    df2 = df.copy()
+    new_df = func.interp_system(df2, df_pos2)
+    print("aa:", res["speed"].index)
+# TODO: move the plots along :) to ajust, calc ajustement from that
+    for i in range(100, 101):
+        new_df2 = new_df.copy()
+        # print("pos: ", df_pos.head())     
+        # print("new: ", len(new_df), len(res[i]["speed"]))
+        plt.figure()
         # https://stackoverflow.com/questions/22276066/how-to-plot-multiple-functions-on-the-same-figure
         # if new_df.iloc[i:].index < len(res[i]["speed"]): len = len(df_pos[i:]["speed"]) 
         # else: new_df.iloc[i:].index
         # print(new_df["Time"], res[i]["Time"])
-
-        # plt.plot(new_df.index, res[i].iloc[i-1:]["speed"], 'r')
-        # plt.plot(new_df.index, new_df["Vitesse du véhicule"], 'b')
+        print("len: ", len(res) - len(new_df[i:]))
+        plt.plot(res["speed"][1:100].index, res["speed"][1:100], 'r')
+        # for j in range (0, len(res) - len(new_df[i:])):
+        #     new_df2 = pd.concat([new_df2, pd.DataFrame([[np.nan] * new_df2.shape[1]], columns=new_df2.columns)], ignore_index=True)
+        plt.plot(res["speed"][1:100].index, new_df2["Vitesse du véhicule"][100:199], 'b')
         plt.title(f"Vitesse, index = {i}")
-    plt.grid()
+
     plt.show()
 
     # print("res: ", len(res[0]["speed"]))
