@@ -57,7 +57,7 @@ def rolling_avg(df, df_pos, avg_count=3):
 # Interpolation des donnees toutes les 200ms
 # https://stackoverflow.com/questions/73210784/how-do-interpolate-values-between-two-date-columns-in-my-pandas-dataframe
 #########################################################################
-def interp_system(df, df_pos, datestamp, timestamp):
+def interp_system(df, df_pos):
     """
         Interpolation des donnees toutes les 200ms
 
@@ -67,47 +67,56 @@ def interp_system(df, df_pos, datestamp, timestamp):
         :param timestamp: premier horaire des donnees gps
         :return: returns nothing
     """
-    print(df.Temps)
+    # print(df.Temps)
 
     # Drop all of the average calc added columns to stop spread of nan throughout the table
-    df_pos = df_pos.drop('MA_lon', axis=1)
-    df_pos = df_pos.drop('MA_lat', axis=1)
-    df_pos = df_pos.drop('MA_hau', axis=1)
+    # df_pos = df_pos.drop('MA_lon', axis=1)
+    # df_pos = df_pos.drop('MA_lat', axis=1)
+    # df_pos = df_pos.drop('MA_hau', axis=1)
 
-    df = df.drop('MA_amp', axis=1)
-    df = df.drop('MA_vit', axis=1)
+    # df = df.drop('MA_amp', axis=1)
+    # df = df.drop('MA_vit', axis=1)
 
     df['Temps'] = pd.to_datetime(df['Temps'], unit='s')
-    df['Temps'] = df['Temps'] + pd.Timedelta(hours = timestamp[0], minutes=timestamp[1], seconds=timestamp[2])
-    new_date = pd.to_datetime(datestamp, format='%Y/%m/%d')
+    df['Temps'] = df['Temps'] + pd.Timedelta(hours = 9, minutes=17, seconds=38)
+    new_date = pd.to_datetime('2024/02/12', format='%Y/%m/%d')
     df['Temps'] = df['Temps'] + (new_date - df['Temps'].dt.floor('D'))
     # new range
-    new_range = pd.date_range(df.Temps.iloc[0], df.Temps.iloc[-1], freq='200L')
+    # print("hrere 2: ", df['Temps'].iloc[0])
+    new_range = pd.date_range(df['Temps'].iloc[0], df['Temps'].iloc[-1], freq='200L')
 
+    print("range: ", new_range)
     df_pos['time'] = pd.to_datetime(df_pos['GPST'] + ' ' + df_pos['Time'], format='%Y/%m/%d %H:%M:%S.%f')
 
-    print(new_range)
-    df.set_index('Temps', inplace=True)
-    df_pos.set_index("time", inplace=True)
+    df_pos2 = df_pos.copy()
 
-    print(df_pos)
+    # print(new_range)
+    df.set_index('Temps', inplace=True)
+    df_pos2.set_index("time", inplace=True)
+
+    # print(df_pos2)
 
     df = df.reindex(df.index.union(new_range))
 
+    print("df: ", df)
+
     interp_df = df.interpolate('time')
 
-    print(interp_df)
+    # interp_df.index.rename('Time', inplace=True)
 
-    merge_df = pd.merge(interp_df, df_pos, left_index=True, right_index=True, how='left')
+    print("index:", interp_df.index)
 
-    print(merge_df)
-    print(merge_df.iloc[9])
+    merge_df = pd.merge(interp_df, df_pos2, left_index=True, right_index=True, how='left')
+
+    print("merge: ", merge_df)
+    # print(merge_df.iloc[9])
 
     merge_df.to_csv("test.csv", sep='\t')
 
     merge_df_no_nan = merge_df.dropna()
 
     print(merge_df_no_nan)
+    return merge_df_no_nan
 
 #########################################################################
 # https://en.wikipedia.org/wiki/Haversine_formula
