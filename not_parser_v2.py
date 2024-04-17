@@ -42,7 +42,6 @@ else:
 
     # print("here: ", df_pos['Time'].dt.time.iloc[0])
 
-    # donne la difference sur les 10 premiers timestamps possibles en prenant la plus petites sur une fenetre de 10, repete sur les x premiers timestamps (probablement redondant cf 2nd solution en dessous)
     # for i in range(0, 10):
     #     timestamp, res, df, min_ind = func.ajust_curve(df, val = df.iloc[i]["Vitesse du véhicule"])
     #     # https://stackoverflow.com/questions/22276066/how-to-plot-multiple-functions-on-the-same-figure
@@ -51,20 +50,31 @@ else:
     #     plt.title(f"Vitesse, index premier timestamp = {timestamp}")
     #     plt.show()
 
-    res = [0] * 10
-    for i in range(0, 1):
+# TODO: recheck method (apres premier df rendu sont tres petits)
+# thingy is fine, plotting is not, force plotting by stuffing with other values to compensate
+    res = [0] * 1000
+    for i in range(200, 201):
         df2 = df.copy()
-        # print(df_pos.head())
+        print("pos: ", df_pos.head())
         res[i] = func.calc_speed(df_pos)
-        new_df = func.interp_system(df2, df_pos2)
-        print("new: ", new_df)
-        plt.figure()
-        print("len: ", len(new_df))
-        # https://stackoverflow.com/questions/22276066/how-to-plot-multiple-functions-on-the-same-figure
-        plt.plot(new_df.iloc[i:len(new_df)-abs(len(new_df)-len(res[i]["speed"]))].index, res[i]["speed"], 'r')
-        plt.plot(new_df.iloc[i:].index, new_df.iloc[i:]["Vitesse du véhicule"], 'b')
-        plt.title(f"Vitesse, index = {i}")
+        new_df = func.interp_system(df2, df_pos2[i:])
+        
+        print("new: ", len(new_df), len(res[i]["speed"]))
 
+        fig, ax1 = plt.subplots()
+        ax1.plot(res[i]["Time"], res[i].iloc[i-1:]["speed"], 'r')
+
+        ax2 = ax1.twinx()
+        ax2.plot(new_df["Vitesse du véhicule"], 'b')
+        # https://stackoverflow.com/questions/22276066/how-to-plot-multiple-functions-on-the-same-figure
+        # if new_df.iloc[i:].index < len(res[i]["speed"]): len = len(df_pos[i:]["speed"]) 
+        # else: new_df.iloc[i:].index
+        # print(new_df["Time"], res[i]["Time"])
+
+        # plt.plot(new_df.index, res[i].iloc[i-1:]["speed"], 'r')
+        # plt.plot(new_df.index, new_df["Vitesse du véhicule"], 'b')
+        plt.title(f"Vitesse, index = {i}")
+    plt.grid()
     plt.show()
 
     # print("res: ", len(res[0]["speed"]))

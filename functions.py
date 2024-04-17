@@ -76,6 +76,8 @@ def interp_system(df, df_pos):
 
     # df = df.drop('MA_amp', axis=1)
     # df = df.drop('MA_vit', axis=1)
+    
+    print(df.head())
 
     df['Temps'] = pd.to_datetime(df['Temps'], unit='s')
     df['Temps'] = df['Temps'] + pd.Timedelta(hours = 9, minutes=17, seconds=38)
@@ -111,10 +113,12 @@ def interp_system(df, df_pos):
     print("merge: ", merge_df)
     # print(merge_df.iloc[9])
 
-    merge_df.to_csv("test.csv", sep='\t')
 
     merge_df_no_nan = merge_df.dropna()
 
+    merge_df_no_nan = merge_df_no_nan.iloc[:-1]
+
+    merge_df_no_nan.to_csv("test.csv", sep='\t')
     print(merge_df_no_nan)
     return merge_df_no_nan
 
@@ -159,6 +163,8 @@ def calc_speed(df):
     new_timestamp = None
 
     df["speed"] = pd.to_numeric(df['speed'])
+    print("speed: ", df)
+    df.to_csv("test2.csv", sep='\t')
     return df
 #########################################################################
 # Calcul d'un timestamp ideal selon les donnees GPS et vitesse capteur voiture si besoin

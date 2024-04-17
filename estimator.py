@@ -24,3 +24,15 @@ frontal_area = 2.54478
 cr = 0.0085
 aero_res_const = 1.3 # val ref from pdf
 theta = deg_to_rad(1) # use average elevation to min to get slopping over data
+
+def calc_aero_res(speed):
+    return ( air_density / 2 ) * cx * frontal_area * speed ** 2
+
+def calc_rolling_res():
+    return cr * mass * 9.81
+
+def calc_grade_res():
+    return mass * 9.81 * math.sin(theta)
+
+def calc_power(accel, speed):
+    return (mass * accel + aero_res_const * speed**2 + cr * mass * 9.81 + mass * 9.81 * math.sin(theta)) * speed
