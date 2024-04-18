@@ -9,7 +9,7 @@ max_offtrack = 5 # nombre de valeurs acceptee dans un df dont le pas de differen
 # TODO: linking to functions
 # TODO: Linking to physics 
 # TODO: produce model from this
-# TODO: verify function on other files
+# TODO: verify function on other files, problem when next file has different headers
 
 #########################################################################
 # Plot Intensite du courant en fonction de la vitesse (sur les 98 premieres valeurs)
