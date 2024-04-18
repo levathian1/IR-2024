@@ -67,6 +67,9 @@ def interp_system(df, df_pos):
         :param timestamp: premier horaire des donnees gps
         :return: returns nothing
     """
+
+    # TODO: leaving nan values outside of range by only applying removena to specific range (where bad indexed values will have nan on certain columns)
+    # outisde of those will have nan but will be left intact (should have correct indexing pattern)
     # print(df.Temps)
 
     # Drop all of the average calc added columns to stop spread of nan throughout the table

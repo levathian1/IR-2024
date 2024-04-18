@@ -56,7 +56,6 @@ else:
     print("aa:", res["speed"].index)
 # TODO: move the plots along :) to ajust, calc ajustement from that
     for i in range(0, 10):
-        new_df2 = new_df.copy()
         # print("pos: ", df_pos.head())     
         # print("new: ", len(new_df), len(res[i]["speed"]))
         plt.figure()
@@ -68,8 +67,8 @@ else:
         plt.plot(res["speed"][0:1000].index, res["speed"][0:1000], 'r', label="vitesse GPS")
         # for j in range (0, len(res) - len(new_df[i:])):
         #     new_df2 = pd.concat([new_df2, pd.DataFrame([[np.nan] * new_df2.shape[1]], columns=new_df2.columns)], ignore_index=True)
-        plt.plot(res["speed"][0:1000].index, new_df2["Vitesse du véhicule"][i:i+1000], 'b', label="vitesse interpolee")
-        speed = res["speed"].iloc[0] - new_df2["Vitesse du véhicule"].iloc[i]
+        plt.plot(res["speed"][0:1000].index, new_df["Vitesse du véhicule"][i:i+1000], 'b', label="vitesse interpolee")
+        speed = res["speed"].iloc[0] - new_df["Vitesse du véhicule"].iloc[i]
         plt.legend()
         plt.title(f"Vitesse, index = {i}, speed diff at first index {speed}")
 
