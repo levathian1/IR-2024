@@ -54,6 +54,9 @@ else:
     res = func.calc_pente(res)
     df2 = df.copy()
     new_df = func.interp_system(df2, df_pos2)
+    res['intensity'] = new_df['Courant'].to_numpy()
+    res2 = res.iloc[1:]
+    res2.to_csv("df_pos_with_speed_heightdiff.csv", sep='\t')
     print("aa:", res["speed"].index)
 # TODO: move the plots along :) to ajust, calc ajustement from that
     for i in range(0, 10):
