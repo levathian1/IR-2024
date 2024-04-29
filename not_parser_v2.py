@@ -51,6 +51,7 @@ else:
     #     plt.title(f"Vitesse, index premier timestamp = {timestamp}")
     #     plt.show()
     res = func.calc_speed(df_pos)
+    res = func.calc_pente(res)
     df2 = df.copy()
     new_df = func.interp_system(df2, df_pos2)
     print("aa:", res["speed"].index)

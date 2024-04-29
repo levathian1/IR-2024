@@ -176,6 +176,16 @@ def calc_speed(df):
     print("speed: ", df)
     df.to_csv("test2.csv", sep='\t')
     return df
+
+def calc_pente(df):
+    # http://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.diff.html
+    df['height_diff'] = df['height(m)'].diff()
+    df['pre_angle'] = df['longitude(deg)']/df['height(m)']
+    # https://www.cuemath.com/trigonometry/angle-of-elevation/
+    df['angle'] = df.apply(lambda x: math.acos(x['pre_angle']), axis=1)
+
+    df.to_csv("df_pos_with_speed_heightdiff.csv", sep='\t')
+    return df
 #########################################################################
 # Calcul d'un timestamp ideal selon les donnees GPS et vitesse capteur voiture si besoin
 # a appeler plusieurs fois pour trouver le meilleur start time
