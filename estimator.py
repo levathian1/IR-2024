@@ -1,5 +1,6 @@
 import math
 import pandas as pd
+import matplotlib.pyplot as plt
 
 # aero_res = ( air_density / 2 ) * cx * frontal_area * speed ** 2
 # rolling_res = cr * mass * 9.81
@@ -26,6 +27,7 @@ cr = 0.0085
 g = 9.81
 aero_res_const = 1.3 # val ref from pdf
 theta = deg_to_rad(1) # use average elevation to min to get slopping over data
+df = pd.read_csv("df_pos_with_speed_heightdiff.csv", sep='\s+')
 
 def calc_aero_res(speed):
     return ( air_density / 2 ) * cx * frontal_area * speed ** 2
@@ -42,7 +44,8 @@ def calc_power(accel, speed):
 def calc_accel():
     # add in accel calc with speed / time to check against
     res = list()
-    df = pd.read_csv("df_pos_with_speed_heightdiff.csv", sep='\s+')
+    accel_moy = (df["speed"].iloc[0] - df["speed"].iloc[:1]) / 430
+    print("avg accel", accel_moy)
     # https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.iterrows.html#pandas-dataframe-iterrows
     for ind, row in df.iterrows():
         k_m = 114 / mass
@@ -58,4 +61,10 @@ def calc_accel():
     return res
 
 # https://stackoverflow.com/questions/4440516/in-python-is-there-an-elegant-way-to-print-a-list-in-a-custom-format-without-ex
-print('\n'.join('{}: {}'.format(*k) for k in enumerate(calc_accel())))
+val = calc_accel()
+print('\n'.join('{}: {}'.format(*k) for k in enumerate(val)))
+plt.figure()
+plt.plot(df['Time'][0:15], val[0:15])
+# plt.legend()
+plt.title(f"Acceleration au cours du temps")
+plt.show()

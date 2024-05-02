@@ -180,7 +180,17 @@ def calc_speed(df):
 def calc_pente(df):
     # http://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.diff.html
     df['height_diff'] = df['height(m)'].diff()
-    df['pre_angle'] = df['longitude(deg)']/df['height(m)']
+    df['pre_angle'] = df['latitude(deg)']/df['longitude(deg)']
+    # https://www.cuemath.com/trigonometry/angle-of-elevation/
+    df['angle'] = df.apply(lambda x: math.atan(x['pre_angle']), axis=1)
+
+    df.to_csv("df_pos_with_speed_heightdiff.csv", sep='\t')
+    return df
+
+def calc_accel(df):
+    # http://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.diff.html
+    df['height_diff'] = df['height(m)'].diff()
+    df['pre_angle'] = df['height(m)']/df['longitude(deg)']
     # https://www.cuemath.com/trigonometry/angle-of-elevation/
     df['angle'] = df.apply(lambda x: math.acos(x['pre_angle']), axis=1)
 
