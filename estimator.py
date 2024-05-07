@@ -34,6 +34,7 @@ g = 9.81
 aero_res_const = 1.3 # val ref from pdf
 theta = deg_to_rad(1) # use average elevation to min to get slopping over data
 df = pd.read_csv("df_pos_with_speed_heightdiff.csv", sep='\s+')
+max_int = df['intensity'].max() * (5/100)
 
 def calc_aero_res(speed):
     return ( air_density / 2 ) * cx * frontal_area * speed ** 2
@@ -54,35 +55,55 @@ def calc_accel():
     accel_moy = (df["speed"].iloc[0] - df["speed"].iloc[:1]) / 430
     print("avg accel", accel_moy)
     # https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.iterrows.html#pandas-dataframe-iterrows
+    accel = list()
+    for i in range(0, df.shape[0]-1):
+        accel.append((df["speed"].iloc[i] - df["speed"].iloc[i+1]) / 0.2)
+        print('accel[i]')
+
+    # print(accel)
+    km = list()
+    for i in range(len(accel)):
+        f_a = ( air_density / 2 ) * cx * frontal_area * df['intensity'].iloc[i] ** 2
+        f_r = cr * mass *  g * math.sin(deg_to_rad(df['angle'].iloc[i]))
+        f_p = mass * g * math.sin(deg_to_rad(df['angle'].iloc[i]))
+        km.append((0.2 / (df['intensity'].iloc[i] ) * (mass * accel[i]) - f_a - f_r - f_p))
+
+    print(df.shape[0]-1)
+    std_dev = np.std(np.array(km))
+    km_nb = np.mean(np.array(km))
+    print('dev: ', std_dev)
+    print("km: ", km_nb)
     for ind, row in df.iterrows():
-        if(row['intensity'] > 0):
+        if(row['intensity'] > max_int):
             # k_m = 114 / mass
-            k_m = 230 / row['intensity']
+            # https://www.renault.fr/achat-vehicules-neufs/vehicules.html?productId=VEH_VF1RFK00870363236
+            # kangoo engine traction
+            k_m = 245 / row['intensity']
             f_m = ( k_m / 0.2032 ) * row['intensity'] # 18 inch tire
             f_f = 0 # calc on speed > 0
             f_a = ( air_density / 2 ) * cx * frontal_area * row['speed'] ** 2
-            f_r = cr * mass *  g * math.cos(deg_to_rad(row['angle']))
+            f_r = cr * mass *  g * math.sin(deg_to_rad(row['angle']))
             f_p = mass * g * math.sin(deg_to_rad(row['angle']))
             a = (f_m - f_f - f_a - f_r - f_p) / mass
             res.append(a)
             fin_arr.append([k_m, f_m, f_f, f_a, f_r, f_p])
-            print(row['intensity'], f_m)
+            # print(k_m)
 
 
             
     # -ma = k * v**2 + f_rl * m * g + m * g * sin theta - F
-    return res, fin_arr
+    return res, fin_arr, accel
 
 # https://stackoverflow.com/questions/4440516/in-python-is-there-an-elegant-way-to-print-a-list-in-a-custom-format-without-ex
-val, arr = calc_accel()
-print('\n'.join('{}: {}'.format(*k) for k in enumerate(val)))
+val, arr, acc = calc_accel()
+# print('\n'.join('{}: {}'.format(*k) for k in enumerate(val)))
 plt.figure()
 plt.plot(df['Time'][0:15], val[0:15])
 # plt.legend()
 plt.title(f"Acceleration au cours du temps")
 
 
-print(len(arr)/2)
+# print(len(arr)/2)
 
 arr_t = arr[:int(len(arr)/2)]
 arr_p = arr[int(len(arr)/2)+1:]
@@ -100,9 +121,10 @@ print("len: ", len(res2), len(val[int(len(arr)/2)+1:]))
 
 print(res2)
 print(val[int(len(arr)/2)+1:])
-print(val)
+# print(val)
 
 for i in range(0, int(len(arr)/2)):
-    print("gap", res2[i] - val[i])
+    print("gap", res2[i] - val[i + int(len(arr)/2)+1])
+    print("gap 2", val[i] - acc[i])
 
 plt.show()
