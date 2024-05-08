@@ -57,9 +57,11 @@ else:
     res['intensity'] = new_df['Courant'].to_numpy()
     res2 = res.iloc[1:]
     res2.to_csv("df_pos_with_speed_heightdiff.csv", sep='\t')
+    new_df.to_csv("dump_interp_speed.csv", sep='\t')
     print("aa:", res["speed"].index)
+    res.to_csv("dump_speed.csv", sep='\t')
 # TODO: move the plots along :) to ajust, calc ajustement from that
-    for i in range(0, 10):
+    for i in range(0, 15):
         # print("pos: ", df_pos.head())     
         # print("new: ", len(new_df), len(res[i]["speed"]))
         plt.figure()
@@ -68,11 +70,11 @@ else:
         # else: new_df.iloc[i:].index
         # print(new_df["Time"], res[i]["Time"])
         print("len: ", len(res) - len(new_df[i:]))
-        plt.plot(res["speed"][0:1000].index, res["speed"][0:1000], 'r', label="vitesse GPS")
+        plt.plot(res["speed"][0:1000].index, res["speed"][i:i+1000], 'r', label="vitesse GPS")
         # for j in range (0, len(res) - len(new_df[i:])):
         #     new_df2 = pd.concat([new_df2, pd.DataFrame([[np.nan] * new_df2.shape[1]], columns=new_df2.columns)], ignore_index=True)
-        plt.plot(res["speed"][0:1000].index, new_df["Vitesse du véhicule"][i:i+1000], 'b', label="vitesse interpolee")
-        speed = res["speed"].iloc[0] - new_df["Vitesse du véhicule"].iloc[i]
+        plt.plot(res["speed"][0:1000].index, new_df["Vitesse du véhicule"][0:1000], 'b', label="vitesse interpolee")
+        speed = new_df["Vitesse du véhicule"].iloc[0] - res["speed"].iloc[i]
         plt.legend()
         plt.title(f"Vitesse, index = {i}, speed diff at first index {speed}")
 
