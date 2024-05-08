@@ -59,7 +59,8 @@ def calc_accel():
     angle = list()
     speed = list()
     for i in range(0, df.shape[0]-1):
-        accel.append((df["speed"].iloc[i] - df["speed"].iloc[i+1]) / 0.2)
+        if(df['intensity'].iloc[i] > max_int):
+            accel.append((df["speed"].iloc[i] - df["speed"].iloc[i+1]) / 0.2)
         # print('accel[i]')
 
     # print(accel)
@@ -85,7 +86,7 @@ def calc_accel():
             # kangoo engine traction
             angle.append(float(row['angle']))
             speed.append(float(row['speed']))
-            k_m = 245 / row['intensity']
+            # k_m = 245 / row['intensity']
             f_m = ( km_nb / 0.5 ) * row['intensity'] # 18 inch tire
             f_f = 0 # calc on speed > 0
             f_a = ( air_density / 2 ) * cx * frontal_area * row['speed'] ** 2
@@ -143,5 +144,7 @@ print("len: ", len(res2), len(val[int(len(arr)/2)+1:]))
 for i in range(0, int(len(arr)/2)):
     print("gap", res2[i] - val[i + int(len(arr)/2)+1])
     print("gap 2", val[i] - acc[i])
+
+print("avg gap in accel between estimation & calculated accel: ", np.mean(np.array(val) - np.array(acc)))
 
 plt.show()
