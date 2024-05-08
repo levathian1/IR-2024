@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import csv
 import sys
+import math
 
 import functions as func
 
@@ -54,12 +55,14 @@ else:
     res = func.calc_pente(res)
     df2 = df.copy()
     new_df = func.interp_system(df2, df_pos2)
-    res['intensity'] = new_df['Courant'].to_numpy()
-    res2 = res.iloc[1:]
-    res2.to_csv("df_pos_with_speed_heightdiff.csv", sep='\t')
+    res = res.iloc[9:]
+    res['intensity'] = new_df.iloc[:len(res)]['Courant'].to_numpy()
+    print(res)
+    res.to_csv("df_pos_with_speed_heightdiff.csv", sep='\t')
     new_df.to_csv("dump_interp_speed.csv", sep='\t')
     print("aa:", res["speed"].index)
     res.to_csv("dump_speed.csv", sep='\t')
+    min = math.inf
 # TODO: move the plots along :) to ajust, calc ajustement from that
     for i in range(0, 15):
         # print("pos: ", df_pos.head())     
@@ -75,10 +78,17 @@ else:
         #     new_df2 = pd.concat([new_df2, pd.DataFrame([[np.nan] * new_df2.shape[1]], columns=new_df2.columns)], ignore_index=True)
         plt.plot(res["speed"][0:1000].index, new_df["Vitesse du véhicule"][0:1000], 'b', label="vitesse interpolee")
         speed = new_df["Vitesse du véhicule"].iloc[0] - res["speed"].iloc[i]
+        if speed < min: min = speed
         plt.legend()
         plt.title(f"Vitesse, index = {i}, speed diff at first index {speed}")
 
     plt.show()
+
+    
+    res = res.iloc[min:]
+    res['intensity'] = new_df.iloc[:len(res)]['Courant'].to_numpy()
+    print(res)
+    res.to_csv("df_pos_with_speed_heightdiff.csv", sep='\t')
 
     # print("res: ", len(res[0]["speed"]))
 
